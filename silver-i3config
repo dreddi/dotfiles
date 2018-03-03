@@ -1,0 +1,270 @@
+##
+## i3 general (silver)
+##
+set $mod Mod1
+
+# Compositing manager, enables hardware acceleration of UI
+exec --no-startup-id compton --config ~/.config/i3/compton.conf -b
+
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+
+# start a terminal
+bindsym $mod+Return exec i3-sensible-terminal
+
+# launch programs with dmenu (a program launcher)
+bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+
+# reboot menu
+set $LOCK_APP i3lock -c 000000
+set $mode_system System (l) lock, (e) logout, (s) suspend, (r) reboot, (p) shutdown
+mode "$mode_system" {
+    bindsym l exec --no-startup-id $LOCK_APP, mode "default"
+    bindsym e exec --no-startup-id i3-msg exit, mode "default"
+    bindsym s exec --no-startup-id sudo pm-suspend, mode "default"
+    bindsym r exec --no-startup-id sudo reboot, mode "default"
+    bindsym p exec --no-startup-id systemctl poweroff, mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym Control+$mod+Delete mode "$mode_system"
+
+
+
+#
+# silver tweaks
+#
+
+# enable right alt as an altgr modifier
+exec xmodmap -e 'remove Mod1 = Alt_R'
+exec xmodmap -e 'add Mod3 = Alt_R'
+exec --no-startup-id setxkbmap -option compose:ralt
+
+# Pulse Audio controls #working
+bindsym XF86AudioRaiseVolume exec "amixer -q -D pulse set Master 5%+ unmute"
+bindsym XF86AudioLowerVolume exec "amixer -q -D pulse set Master 5%-"
+bindsym XF86AudioMute exec "amixer -q -D pulse set Master toggle"
+
+# Media player controls
+# playerctl .deb file from https://github.com/acrisci/playerctl/releases
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+# Screen brightness controls
+## screen backlight controls won't work without the following line in grub.conf
+## GRUB_CMDLINE_LINUX_DEFAULT="quiet splash acpi_osi=Linux acpi_backlight=vendor"
+bindsym XF86MonBrightnessUp exec xbacklight -inc 10 # increase screen brightness
+bindsym XF86MonBrightnessDown exec xbacklight -dec 10 # decrease screen brightness
+
+# HiDPI settings for i3 menus, separate from Gnome DPI scaling 
+exec_always xrandr --dpi 200
+
+# enable gnome theming and dpi scaling
+exec --no-startup-id unity-settings-daemon
+
+# wallpaper
+exec --no-startup-id feh --bg-fill /home/dan/Pictures/wallpapers/spiderweb_ricefield.jpg
+
+# unity greeter wallpaper
+# https://askubuntu.com/questions/64001/how-do-i-change-the-wallpaper-of-the-login-screen
+
+# wifi menu for taskbar
+exec --no-startup-id nm-applet
+
+# remembers ssh public keys for the duration of my session
+exec --no-startup-id gnome-keyring-daemon
+
+# screenshots / print-screen
+bindsym Print exec gnome-screenshot -i
+
+# to allow privilege elevation dialogs
+exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+
+# recovering missing settings dialogs in unity-control-center
+# https://www.reddit.com/r/i3wm/comments/4fy0dn/ubuntu_1604_system_settings/
+
+
+
+
+##
+## Theming
+##
+
+# Font for window titles. Will also be used by the bar unless a different font
+# is used in the bar {} block below.
+font pango:monospace 8
+
+
+# based off of arc-theme
+# window colours
+set $FOCUS #B3BDCB
+set $UNFOCUS #303641
+set $DARK #29303A
+set $URGENT #5294E2
+
+
+# Layout colors
+client.focused                  $FOCUS $FOCUS $DARK $FOCUS
+client.focused_inactive         $UNFOCUS $UNFOCUS $UNFOCUS $UNFOCUS
+client.unfocused                $UNFOCUS $UNFOCUS $FOCUS $UNFOCUS
+client.urgent                   $URGENT $URGENT $URGENT $URGENT
+client.background               $UNFOCUS
+
+
+# Start i3bar to display a workspace bar (plus the system information i3status
+# finds out, if available)
+bar {
+        status_command i3status -c ~/.config/i3/i3status.conf
+        tray_output primary
+  colors {
+    background $DARK
+    separator  $UNFOCUS
+    statusline #ffffff
+
+    # <workclass>       <border> <backgr.> <text>
+    focused_workspace   $FOCUS $FOCUS $DARK
+    active_workspace    $UNFOCUS $UNFOCUS $FOCUS
+    urgent_workspace $URGENT $URGENT #ffffff
+  }
+
+}
+
+
+##
+## Window placement
+##
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# kill focused window
+bindsym $mod+Shift+q kill
+
+# change focus
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+l focus up
+bindsym $mod+semicolon focus right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# move focused window
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+l move up
+bindsym $mod+Shift+semicolon move right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# split in horizontal orientation
+bindsym $mod+h split h
+
+# split in vertical orientation
+bindsym $mod+v split v
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym $mod+space focus mode_toggle
+
+# focus the parent container
+bindsym $mod+a focus parent
+
+# focus the child container
+#bindsym $mod+d focus child
+
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym j resize shrink width 10 px or 10 ppt
+        bindsym k resize grow height 10 px or 10 ppt
+        bindsym l resize shrink height 10 px or 10 ppt
+        bindsym semicolon resize grow width 10 px or 10 ppt
+
+        # same bindings, but for the arrow keys
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+
+
+#
+# Workspaces
+#
+
+# workspace aliases
+set $music 11: music
+set $chat 12: chat
+
+# switch to workspace
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+bindsym $mod+minus workspace $music
+bindsym $mod+equal workspace $chat
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+bindsym $mod+Shift+minus move container to workspace $music
+bindsym $mod+Shift+equal move container to workspace $chat
+
+
+#
+# Workspace Assignments
+#
+
+# assign [class="Spotify"] $music
+for_window [class="Spotify"] move to workspace $music
+
+assign [class="Slack"] $chat
+
